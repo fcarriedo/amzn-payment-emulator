@@ -1,0 +1,19 @@
+<html>
+  <head>
+    <style>
+      body {font-family: sans-serif;}
+    </style>
+  </head>
+  <body>
+    <h2>Please register to authorize payment</h2>
+    <form action='/auth' method='POST'>
+      <input type='text' name='email' value=''/> <br/>
+      <input type='password' name='pwsd' value=''/> <br/>
+      <input type='submit' value='Submit' />
+    </form>
+  </body>
+
+  <div style='font-size: 8pt; color: #aaa;'>
+    http://{{.}}/auth?callbackURL=http%3A%2F%2Fes-razrzone.ngrok.com%2Fcallback&amount=5&desc=Cosmos%20A%20Personal%20Voyage%20DVD%20Set&id=aaa123
+  </div>
+</html>

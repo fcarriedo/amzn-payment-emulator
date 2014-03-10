@@ -1,0 +1,19 @@
+<html>
+  <head>
+    <style>
+      body {font-family: sans-serif;}
+    </style>
+  </head>
+  <body>
+    <h2>Please confirm your order</h2>
+    <h3>Hello {{ .user.Name }} - {{ .user.Email }}</h3>
+    <h4>Order Details</h4>
+    <div>
+      {{ .order.Desc }} - Total: <b>$ {{ .order.Amount }}</b>
+    </div>
+    <form action='/orders' method='POST'>
+      <input type='hidden' name='id' value='{{ .id }}'/>
+      <input type='submit' value='Submit' />
+    </form>
+  </body>
+</html>
