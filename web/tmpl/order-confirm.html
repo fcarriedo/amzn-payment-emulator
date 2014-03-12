@@ -1,19 +1,63 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
   <head>
-    <style>
-      body {font-family: sans-serif;}
-    </style>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Amazon Payments</title>
+
+    <!-- Bootstrap -->
+    <link href="http://getbootstrap.com/dist/css/bootstrap.css" rel="stylesheet" type="text/css" />
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
   </head>
   <body>
-    <h2>Please confirm your order</h2>
-    <h3>Hello {{ .user.Name }} - {{ .user.Email }}</h3>
-    <h4>Order Details</h4>
-    <div>
-      {{ .order.Desc }} - Total: <b>$ {{ .order.Amount }}</b>
+    <div class="container">
+      <div class="row">
+        <div class="col-xs-12">
+          <p style='margin: 15px 0px;'>
+            <img src='https://images-na.ssl-images-amazon.com/images/G/01/authportal/common/images/amazon_logo_no-org_mid._V153387053_.png'/>
+          </p>
+          <p class='lead'>
+            Hello <strong>{{ .user.Name }}</strong>
+          </p>
+
+          <div class="panel panel-warning">
+            <div class="panel-heading">
+              <strong>
+                {{if .order}} Order {{else}} No pending order exist {{end}}
+              </strong>
+          </div>
+            <ul class="list-group">
+              {{ range .order.Items }}
+              <li class="list-group-item">{{ . }}</li>
+              {{ end }}
+            </ul>
+          </div>
+
+          <div class="panel panel-default">
+            <div class="panel-heading">Total <strong>$ {{ .order.Amount }} USD</strong></div>
+          </div>
+
+
+          <form role="form" action='/orders' method='POST'>
+            <input type='hidden' name='id' value='{{ .id }}'/>
+            <div class="form-group">
+              <button type='submit' class='btn btn-warning btn-lg btn-block'>Please confirm your order</button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
-    <form action='/orders' method='POST'>
-      <input type='hidden' name='id' value='{{ .id }}'/>
-      <input type='submit' value='Submit' />
-    </form>
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="http://getbootstrap.com/dist/js/bootstrap.js"></script>
   </body>
 </html>

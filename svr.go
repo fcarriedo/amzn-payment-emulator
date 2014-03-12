@@ -10,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"strings"
 )
 
 var port = flag.Int("p", 9500, "the port")
@@ -22,6 +23,7 @@ const sessionName = "amzn"
 type order struct {
 	Amount string
 	Desc   string
+	Items  []string
 }
 
 type user struct {
@@ -38,26 +40,37 @@ func init() {
 	templates = template.Must(template.New("app").ParseGlob("web/tmpl/*.html"))
 }
 
-func authHandler(w http.ResponseWriter, req *http.Request) {
+// Captures the order in a volatile session and redirect to login (No UI)
+func entryPointHandler(w http.ResponseWriter, req *http.Request) {
 	switch req.Method {
 	case "GET":
 		amount := req.FormValue("amount")
 		desc := req.FormValue("desc")
+		order := &order{Amount: amount, Desc: desc, Items: strings.Split(desc, ",")}
 
 		// Get the session and save the values
 		session, _ := getSession(req)
-		session.Values["order"] = &order{Amount: amount, Desc: desc}
+		session.Values["order"] = order
 		session.Values["callbackURL"] = req.FormValue("callbackURL")
 		session.Values["id"] = req.FormValue("id")
 
-		// Save
+		// Save session
 		session.Save(req, w)
 
-		// Show the login template
+		// Just capture the order and redirect to login
+		http.Redirect(w, req, "/login", http.StatusFound)
+	}
+}
+
+func loginHandler(w http.ResponseWriter, req *http.Request) {
+	switch req.Method {
+	case "GET":
 		templates.ExecuteTemplate(w, "login.html", req.Host)
 	case "POST":
 		session, _ := getSession(req)
 		session.Values["user"] = &user{Name: "Francisco J Carriedo", Email: req.FormValue("email")}
+
+		// Save session
 		session.Save(req, w)
 
 		// Redirect to the order details
@@ -88,7 +101,24 @@ func orderHandler(w http.ResponseWriter, req *http.Request) {
 			return
 		}
 
-		fmt.Fprint(w, "Order confirmed. Your items should be delivered in any moment.")
+		// Clear relevant session variables
+		delete(session.Values, "id")
+		delete(session.Values, "order")
+		delete(session.Values, "callbackURL")
+
+		// Save updates to the session
+		session.Save(req, w)
+
+		// Redirect to the order details
+		http.Redirect(w, req, "/success", http.StatusFound)
+	}
+}
+
+// Just renders the success template
+func successHandler(w http.ResponseWriter, req *http.Request) {
+	switch req.Method {
+	case "GET":
+		templates.ExecuteTemplate(w, "success.html", nil)
 	}
 }
 
@@ -98,7 +128,7 @@ func getSession(req *http.Request) (*sessions.Session, error) {
 		return nil, err
 	}
 
-	session.Options = &sessions.Options{Path: "/", MaxAge: 90, HttpOnly: true}
+	session.Options = &sessions.Options{Path: "/", MaxAge: 60, HttpOnly: true}
 
 	return session, nil
 }
@@ -108,8 +138,10 @@ func main() {
 
 	router := mux.NewRouter()
 
-	router.HandleFunc("/auth", authHandler)
+	router.HandleFunc("/auth", entryPointHandler)
+	router.HandleFunc("/login", loginHandler)
 	router.HandleFunc("/orders", orderHandler)
+	router.HandleFunc("/success", successHandler)
 
 	http.Handle("/", router)
 
