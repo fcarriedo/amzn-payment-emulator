@@ -12,7 +12,7 @@ Easy as a pie (it is obvious that I have not idea as to how hard is to cook a
 pie)!
 
 ```
-  $ cd {your-folder}
+  $ git clone https://github.com/fcarriedo/amzn-payment-emulator.git && cd amzn-payment-emulator
   $ go get
   $ go build -o amzn
 ```
