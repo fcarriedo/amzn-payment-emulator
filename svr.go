@@ -10,10 +10,11 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 )
 
-var port = flag.Int("p", 9500, "the port")
+var port = flag.Int("p", 9500, "the port to listen for connections")
 
 var store = sessions.NewCookieStore([]byte("secret santa"))
 var templates *template.Template
@@ -38,6 +39,13 @@ func init() {
 
 	// Init the templates
 	templates = template.Must(template.New("app").ParseGlob("web/tmpl/*.html"))
+
+	// Flags usage
+	flag.Usage = func() {
+		fmt.Fprintf(os.Stderr, "Usage:  %v [options]\n\n", os.Args[0])
+		fmt.Fprintln(os.Stderr, "Starts the Amazon/Paypal emulation server\n")
+		flag.PrintDefaults()
+	}
 }
 
 // Captures the order in a volatile session and redirect to login (No UI)

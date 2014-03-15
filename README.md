@@ -17,6 +17,16 @@ pie)!
   $ go build -o amzn
 ```
 
+### Running the Server
+
+```
+Usage:  ./amzn [options]
+
+Starts the Amazon/Paypal emulation server
+
+  -p=9500: the port to listen for connections
+```
+
 ### Using it
 
 The entry point URL expects to have been redirected with several URL parameters
